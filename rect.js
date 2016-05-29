@@ -1,21 +1,50 @@
-var mouseX, mouseY;
-(function(){
- window.addEventListener("mousemove", function(e){
- alert("x = "+e.pageX+", y = "+e.pageY);
- mouseX = e.pageX; mouseY = e.pageY;
- 
- },false);
-}());
+function start_dragging(event){
+drag=1;
+x2=event.clientX;
+y2=event.clientY;
 
+var position_x =center_window.offsetLeft; 
+var position_y =center_window.offsetTop; 
 
-function startDrag(){
- var mouseX = "d";
- var mouseY = "df";
+document.getElementById('some_object').style.marginLeft="0px";
+document.getElementById('some_object').style.marginRight="0px";
+document.getElementById('some_object').style.left=position_x;
 
+document.getElementById('some_object').style.marginTop="0px";
+document.getElementById('some_object').style.marginBottom="0px";
+document.getElementById('some_object').style.top=position_y;
 }
 
-function addBorder(){ this.style.border = "1px solid #000"; this.style.zIndex = "2147483647"; }
-function removeBorder(){ this.style.border = "1px solid transparent"; this.style.zIndex = "1"; }
+function dragging(event){
+if (drag==1){
+
+x1=event.clientX;
+y1=event.clientY;
+
+shift_x=x1-x2;
+shift_y=y1-y2;
+
+document.getElementById('some_object').style.left=some_object.offsetLeft+shift_x;
+document.getElementById('some_object').style.top=some_object.offsetTop+shift_y;
+
+x2=x1; y2=y1;
+}
+}	
+
+function stop_dragging(){drag=0;}
+
+
+function delete_div(id){ document.getElementById(id).remove(); }
+
+function addBorder(){
+ var blocks = document.getElementsByClassName("rect");
+ for(var i=0; i < blocks.length; i++) {
+  blocks[i].style.border = "2px solid transparent";
+  blocks[i].style.zIndex = "1";
+ }
+ this.style.border = "2px solid #000"; 
+ this.style.zIndex = "2147483647"; 
+}
 
 function createDivs(){
  client_w = document.body.clientWidth;
@@ -33,15 +62,18 @@ function createDivs(){
 
   var div = document.createElement('div');
   div.className = "rect";
-  div.id = "rect";
+  div.id = "rect_"+i;
   div.style.width = randWidth+"px";
   div.style.height = randHeight+"px";
   div.style.backgroundColor = "rgb("+randR+","+randG+","+randB+")";
   div.style.top = randTop+"px";
   div.style.left = randLeft+"px";
-  div.addEventListener("mouseover",addBorder);
-  div.addEventListener("mouseout",removeBorder);
-  div.addEventListener("click",startDrag);
+  div.innerHTML = "<div class=\"delete\" onclick=\"delete_div('rect_"+i+"')\"></div>";
+  
+  div.addEventListener("click",addBorder);
+  div.addEventListener("start_dragging",addBorder);
+  div.addEventListener("dragging",addBorder);
+  div.addEventListener("stop_dragging",addBorder);
   document.body.appendChild(div);
  }
 }

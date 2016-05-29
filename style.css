@@ -12,7 +12,7 @@ body{
 	width:auto;
 	height:auto;
 	position:absolute;
-	border:1px solid transparent;
+	border:2px solid transparent;
 	cursor:pointer;
 }
 .delete{
@@ -20,5 +20,10 @@ body{
 	height:10px;
 	background:red;
 	position:absolute;
-	top:10px; right:10px;
+	top:2%; right:2%;
+	border-radius:10px;
+}
+.delete:hover{
+	cursor:pointer;
+	background:#000;
 }
