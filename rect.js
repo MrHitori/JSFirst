@@ -1,38 +1,75 @@
-function start_dragging(event){
-drag=1;
-x2=event.clientX;
-y2=event.clientY;
+/* Start Drag&Drop */
+ DragDrop = function(id){
+  var t = this;
+  if(typeof(id)=='string'){
+   var elem = document.querySelector(id);
+   t.element = document.querySelector(id);
+  }else{
+   var elem = id;
+   t.element = id;
+  }
+  for(var n in DragDrop.objects){
+   if(DragDrop.objects[n].element==elem){
+    return DragDrop.objects[n];
+   }
+  } DragDrop.objects.push(t);
+ 
+  t.drag = function(event){ /* Drag DIV */
+   if(event.preventDefault){
+    event.preventDefault();
+   }
+   t.x = event.clientX;
+   t.y = event.clientY;
+   t.onup = document.onmouseup;
+   t.onmove = document.onmousemove;
+   document.onmouseup = t.drop;
+   document.onmousemove = t.move;
+  }
+ 
+  t.drop = function(event){ /* Drop DIV */
+   document.onmouseup=t.onup;
+   document.onmousemove=t.onmove;
+   if(event.target){
+    t.target = event.target;
+   }else{
+    t.target = event.srcElement;  
+   }
+   if(t.ready!=undefined){
+    return t.ready();
+   }
+  }
+ 
+  t.move = function(event){ /* Move DIV */
+   if(elem.currentStyle){
+    t.left = elem.currentStyle["marginLeft"];
+    t.top = elem.currentStyle["marginTop"];
+   }else{
+    t.left = window.getComputedStyle(elem,"").getPropertyValue("margin-left");
+    t.top = window.getComputedStyle(elem,"").getPropertyValue("margin-top");
+   }
+   if(!parseInt(t.left)){
+    t.left=0;
+   }
+   if(!parseInt(t.top)){
+    t.top=0;
+   }
+   elem.style.marginLeft = parseInt(t.left) + event.clientX - t.x+"px";
+   elem.style.marginTop = parseInt(t.top) + event.clientY - t.y+"px";
+   t.x = event.clientX;
+   t.y = event.clientY;
+   if(t.action!=undefined){
+    return t.action();
+   }
+  }
+ }
 
-var position_x =center_window.offsetLeft; 
-var position_y =center_window.offsetTop; 
-
-document.getElementById('some_object').style.marginLeft="0px";
-document.getElementById('some_object').style.marginRight="0px";
-document.getElementById('some_object').style.left=position_x;
-
-document.getElementById('some_object').style.marginTop="0px";
-document.getElementById('some_object').style.marginBottom="0px";
-document.getElementById('some_object').style.top=position_y;
-}
-
-function dragging(event){
-if (drag==1){
-
-x1=event.clientX;
-y1=event.clientY;
-
-shift_x=x1-x2;
-shift_y=y1-y2;
-
-document.getElementById('some_object').style.left=some_object.offsetLeft+shift_x;
-document.getElementById('some_object').style.top=some_object.offsetTop+shift_y;
-
-x2=x1; y2=y1;
-}
-}	
-
-function stop_dragging(){drag=0;}
-
+ DragDrop.objects = [];
+ function useDrag(event){
+  id = event.target;
+  var d = new DragDrop(id);
+  d.drag(event);
+ }
+/* End Drag&Drop */
 
 function delete_div(id){ document.getElementById(id).remove(); }
 
@@ -47,8 +84,8 @@ function addBorder(){
 }
 
 function createDivs(){
- client_w = document.body.clientWidth;
- client_h = document.body.clientHeight;
+ var client_w = document.body.clientWidth;
+ var client_h = document.body.clientHeight;
  for(var i=0;i<10;i++){
   var randWidth = Math.floor(Math.random() * (client_w / 3)) + 10;
   var randHeight = Math.floor(Math.random() * (client_h / 3)) + 10;
@@ -71,9 +108,7 @@ function createDivs(){
   div.innerHTML = "<div class=\"delete\" onclick=\"delete_div('rect_"+i+"')\"></div>";
   
   div.addEventListener("click",addBorder);
-  div.addEventListener("start_dragging",addBorder);
-  div.addEventListener("dragging",addBorder);
-  div.addEventListener("stop_dragging",addBorder);
+  div.addEventListener('mousedown', function() { useDrag(event); }, false);
   document.body.appendChild(div);
  }
 }
